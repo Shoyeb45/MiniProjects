@@ -41,6 +41,7 @@ const resetGame = () => {
     turnO = true;
     enableBtn();
     msgContainer.classList.add("hide");
+    count = 0;
 }
 
 // Function for disabling the button after winner is found
@@ -56,6 +57,7 @@ const enableBtn = () => {
         box.disabled = false;
         box.innerText = "";
     }
+    count = 0;
 }
 
 // Function for checking the winner
