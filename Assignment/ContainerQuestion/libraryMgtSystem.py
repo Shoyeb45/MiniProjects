@@ -111,14 +111,14 @@ if resp == "c" or resp == "C":
                         if len(it) >= 4:
                             print("You have more than 3 books")
                             break
-                        
+
                         # Updating in catalogue
                         it.append([books["ID"][pos], datetime.date.today()])
                         books["Qty Available"][pos] = books["Qty Available"][pos] - 1
+                        # updated catalogue
+                        catalogueBooks(books)
 
         
-            # updated catalogue
-            catalogueBooks(books)
         else:
             if i == len(books["Author"]) - 1:
                 print("Not a valid book ID.")
