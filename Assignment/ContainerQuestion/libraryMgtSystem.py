@@ -104,6 +104,9 @@ if resp == "c" or resp == "C":
             # First checking existing user or not
             if response == "N" or response == "n":
                 libData.append([id, [books["ID"][pos], datetime.date.today()]]) 
+                books["Qty Available"][pos] = books["Qty Available"][pos] - 1
+                # updated catalogue
+                catalogueBooks(books)
             else:
                 # first finding the user position
                 for it in libData:
@@ -112,11 +115,11 @@ if resp == "c" or resp == "C":
                             print("You have more than 3 books")
                             break
 
-                        # Updating in catalogue
-                        it.append([books["ID"][pos], datetime.date.today()])
-                        books["Qty Available"][pos] = books["Qty Available"][pos] - 1
-                        # updated catalogue
-                        catalogueBooks(books)
+                    # Updating in catalogue
+                    it.append([books["ID"][pos], datetime.date.today()])
+                    books["Qty Available"][pos] = books["Qty Available"][pos] - 1
+                    # updated catalogue
+                    catalogueBooks(books)
 
         
         else:
