@@ -1,0 +1,4 @@
+This folder contains assignment 1, 2, 3 and 4 in single compiled Portable Document Format.
+The pdf is named as "LA_Assignment.pdf"
+
+Submission by : Mohammad Shoyeb Ansari, 2301010069
