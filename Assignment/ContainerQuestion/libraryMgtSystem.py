@@ -49,7 +49,7 @@ catalogueBooks(books)
 libData = [["459", [105, datetime.date(2024, 3, 20)]], ["321", [103, datetime.date(2024, 3, 10)], [101, datetime.date(2024, 3, 25)]]]
 
 # Taking response from user to checkout or return the book
-resp = input("Do you want to return book or issue book(response r for return and i for issueing book):")
+resp = input("Do you want to return book or issue book(response r for return and c for issueing book):")
 
 if resp == "R" or  resp == 'r':
     bookId = int(input("Please enter book id from catalogue:"))
@@ -75,9 +75,51 @@ if resp == "R" or  resp == 'r':
                     diff = datetime.date.today() - it[i][1]
                     if (diff.days > 14):
                         print(f"You have returned the book after 14 days, so overdue fine will be charged. The fine is calulated $1 per day after overdue. So overdue days: {diff.days - 14}\nPlease pay ${diff.days - 14}.")
+                else:
+                    if it[i] == it[len(it[i]) - 1]:
+                        print("You don't have specified book\nPlease issue the book first.")
+                        resp = "c"     
             break
-
         else:   
             if it == libData[len(libData) - 1]:
                 print("Please issue the book first.")
                 resp = "c"
+
+if resp == "c" or resp == "C":
+    bookId = int(input("Please enter book id from catalogue :"))
+
+    for i in range(0, len(books["ID"])):
+        if books["ID"][i] == bookId:
+            # finding position of book in dictionary
+            pos = 0
+            for j in range(0, len(books["ID"])):
+                if books["ID"][j] == bookId:
+                    pos = j
+                    break
+
+            # Displaying author and title
+            print(f"Book name:{books['Title'][pos]}\nAuthor:{books["Author"][pos]}\n\n")
+
+            # updating in user-data.
+            # First checking existing user or not
+            if response == "N" or response == "n":
+                libData.append([id, [books["ID"][pos], datetime.date.today()]]) 
+            else:
+                # first finding the user position
+                for it in libData:
+                    if it[0] == id:
+                        if len(it) >= 4:
+                            print("You have more than 3 books")
+                            break
+                        
+                        # Updating in catalogue
+                        it.append([books["ID"][pos], datetime.date.today()])
+                        books["Qty Available"][pos] = books["Qty Available"][pos] - 1
+
+        
+            # updated catalogue
+            catalogueBooks(books)
+        else:
+            if i == len(books["Author"]) - 1:
+                print("Not a valid book ID.")
+                break
