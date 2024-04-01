@@ -107,6 +107,7 @@ if resp == "c" or resp == "C":
                 books["Qty Available"][pos] = books["Qty Available"][pos] - 1
                 # updated catalogue
                 catalogueBooks(books)
+                break
             else:
                 # first finding the user position
                 for it in libData:
@@ -120,8 +121,8 @@ if resp == "c" or resp == "C":
                     books["Qty Available"][pos] = books["Qty Available"][pos] - 1
                     # updated catalogue
                     catalogueBooks(books)
-
-        
+                    break
+            break
         else:
             if i == len(books["Author"]) - 1:
                 print("Not a valid book ID.")
