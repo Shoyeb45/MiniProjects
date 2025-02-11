@@ -42,7 +42,6 @@ async function setValues(city) {
 
     try {
         let response = await fetch(`${url}/$${city}?format=j1`);
-        console.log(response);
         
         if (!response.ok) {
             showErrorDiv();
@@ -53,17 +52,18 @@ async function setValues(city) {
         response = await response.json();
 
         city = response?.nearest_area[0]?.areaName[0]?.value;
-
+        let country = response?.nearest_area[0]?.country[0]?.value;
+        let region = response?.nearest_area[0]?.region[0]?.value;
         // If city is undefined
-        if (!city) {
+        if (!city || !country || !region) {
             showErrorDiv();
             clearAll();
-            errorDiv.innerHTML = "City not found, please type correct name"; 
+            errorDiv.innerHTML = "Location not found, please type correct name"; 
             return;
         }
         
         // Set city name
-        cityDiv.innerHTML = city;
+        cityDiv.innerHTML = `${city}, ${region} - ${country}`;
 
         // extract temperature
         let temperature = response?.current_condition[0]?.temp_C;
@@ -88,7 +88,8 @@ async function setValues(city) {
             maxTemp = Math.max(maxTemp, parseInt(element.maxtempC));
         });
         
-        if (!minTemp || !maxTemp) {
+        
+        if (minTemp === undefined || maxTemp === undefined) {
             showErrorDiv();
             errorDiv.innerHTML = "Min and Max is not defined";
             clearAll();
