@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #todoInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .delete-btn {
+            background-color: #ff4444;
+        }
+
+        .delete-btn:hover {
+            background-color: #cc0000;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .todo-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Todo List</h1>
+        <div class="input-section">
+            <input type="text" id="todoInput" placeholder="Enter your todo">
+            <button onclick="addTodo()">Add</button>
+        </div>
+        <ul id="todoList">
+            <!-- Todo items will be added here -->
+        </ul>
+        <p id="emptyMessage" class="empty-message">No todos yet. Add one above!</p>
+    </div>
+
+    <script>
+        const todoInput = document.getElementById('todoInput');
+        const todoList = document.getElementById('todoList');
+        const emptyMessage = document.getElementById('emptyMessage');
+
+        // Function to add a new todo
+        function addTodo() {
+            const todoText = todoInput.value.trim();
+            
+            if (todoText === '') {
+                alert('Please enter a todo!');
+                return;
+            }
+
+            // Create new todo item
+            const li = document.createElement('li');
+            li.className = 'todo-item';
+            
+            // Add todo text
+            const span = document.createElement('span');
+            span.textContent = todoText;
+            li.appendChild(span);
+
+            // Add delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.onclick = function() {
+                li.remove();
+                updateEmptyMessage();
+            };
+            li.appendChild(deleteBtn);
+
+            // Add todo to list
+            todoList.appendChild(li);
+            
+            // Clear input
+            todoInput.value = '';
+            
+            // Update empty message visibility
+            updateEmptyMessage();
+        }
+
+        // Function to update empty message visibility
+        function updateEmptyMessage() {
+            emptyMessage.style.display = 
+                todoList.children.length === 0 ? 'block' : 'none';
+        }
+
+        // Add todo when Enter key is pressed
+        todoInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+    </script>
+</body>
+</html>

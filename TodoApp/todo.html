@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo list</title>
+</head>
+<body>
+    <div>
+        <div class="input-box">
+            <input type="text" id="taskInput">
+            <button>Add</button>
+        </div>
+
+        <ul id="todo-list">
+            <!-- List to be added -->
+        </ul>
+    </div>
+
+    <script>
+        const taskBox = document.querySelector("#taskInput");
+        const todoList = document.querySelector("#todo-list");
+
+        function addItem() {
+            const text = taskBox.value;
+            const newLi = document.createElement("li");
+            newLi.innerHTML = `<i>${text}</i>`;
+            todoList.appendChild(newLi);
+
+            const delButton = document.createElement("button");
+
+            delButton.innerHTML = `Delete`;
+            delButton.style.color = "white";
+            delButton.style.backgroundColor = "red";
+
+            newLi.appendChild(delButton);
+            newLi.onclick = function(event) {
+                newLi.remove();
+            }
+        }
+
+        document.querySelector("button").addEventListener("click", addItem);
+    </script>
+</body>
+</html>
+
