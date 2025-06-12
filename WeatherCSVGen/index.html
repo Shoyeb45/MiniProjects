@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Weather CSV Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 300;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+            color: white;
+            display: none;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(86, 171, 47, 0.3);
+        }
+
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .status.loading {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .status.success {
+            background: rgba(86, 171, 47, 0.1);
+            color: #56ab2f;
+            border: 2px solid rgba(86, 171, 47, 0.2);
+        }
+
+        .status.error {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 2px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .preview {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .preview h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .preview-content {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            border: 1px solid #dee2e6;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .api-key-note {
+            background: rgba(255, 193, 7, 0.1);
+            border: 2px solid rgba(255, 193, 7, 0.3);
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .api-key-note strong {
+            color: #b8860b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌤️ Weather CSV Generator (Last 30 Days)</h1>
+ 
+   
+        <div class="input-group">
+            <label for="cityName">City Name:</label>
+            <input type="text" id="cityName" placeholder="e.g., New York, London, Tokyo" />
+        </div>
+
+        <div class="button-group">
+            <button class="generate-btn" onclick="generateWeatherCSV()">
+                Generate 30-Day CSV Data
+            </button>
+            <button class="download-btn" onclick="downloadCSV()">
+                Download CSV File
+            </button>
+        </div>
+
+        <div id="status" class="status" style="display: none;"></div>
+
+        <div id="preview" class="preview">
+            <h3>📋 CSV Preview:</h3>
+            <div id="previewContent" class="preview-content"></div>
+        </div>
+    </div>
+
+    <script>
+        let csvData = '';
+        let fileName = '';
+
+        async function generateWeatherCSV() {
+            const apiKey = "LTUAJSFXU737G8SMKEFZ6LYFS"
+            const cityName = document.getElementById('cityName').value.trim();
+            const statusDiv = document.getElementById('status');
+            const generateBtn = document.querySelector('.generate-btn');
+            const downloadBtn = document.querySelector('.download-btn');
+            const previewDiv = document.getElementById('preview');
+            
+            // Validation
+            if (!apiKey) {
+                showStatus('Please enter your Visual Crossing API key', 'error');
+                return;
+            }
+            
+            if (!cityName) {
+                showStatus('Please enter a city name', 'error');
+                return;
+            }
+
+            // Show loading state
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="loading-spinner"></span>Generating...';
+            downloadBtn.style.display = 'none';
+            previewDiv.style.display = 'none';
+            showStatus('Fetching weather data...', 'loading');
+
+            try {
+                // Construct API URL for last 30 days
+                const apiUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${encodeURIComponent(cityName)}/last30days?unitGroup=us&key=${apiKey}&include=days`;
+                
+                // Fetch weather data
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Invalid API key. Please check your Visual Crossing API key.');
+                    } else if (response.status === 400) {
+                        throw new Error('Invalid city name. Please check the spelling and try again.');
+                    } else {
+                        throw new Error(`API request failed with status ${response.status}`);
+                    }
+                }
+
+                const data = await response.json();
+                
+                // Generate CSV data
+                csvData = generateCSVFromWeatherData(data, cityName);
+                fileName = `weather_data_${cityName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
+                
+                // Show success and preview
+                showStatus(`Successfully generated weather data for ${data.resolvedAddress}`, 'success');
+                showPreview(csvData);
+                downloadBtn.style.display = 'block';
+
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+                console.error('Error fetching weather data:', error);
+            } finally {
+                // Reset button state
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = 'Generate 30-Day CSV Data';
+            }
+        }
+
+        function generateCSVFromWeatherData(data, cityName) {
+            const headers = [
+                'Date',
+                'High_Temp_F',
+                'Low_Temp_F', 
+                'Humidity_%',
+                'Wind_Speed_mph',
+                'Cloud_Cover_%',
+                'Daily_kWh',
+                'HVAC_kWh',
+                'Weather_Condition',
+                'Comfort_Score_1to10'
+            ];
+
+            let csv = headers.join(',') + '\n';
+
+            data.days.forEach(day => {
+                // Calculate estimated energy consumption based on temperature and weather
+                const avgTemp = (day.tempmax + day.tempmin) / 2;
+                const dailyKWh = calculateDailyKWh(avgTemp, day.humidity, day.cloudcover);
+                const hvacKWh = calculateHVACKWh(avgTemp, day.humidity);
+                
+                // Map weather condition
+                const weatherCondition = mapWeatherCondition(day.conditions);
+                
+                // Calculate comfort score
+                const comfortScore = calculateComfortScore(day.tempmax, day.tempmin, day.humidity, day.windspeed);
+
+                const row = [
+                    day.datetime,
+                    Math.round(day.tempmax * 10) / 10,
+                    Math.round(day.tempmin * 10) / 10,
+                    Math.round(day.humidity * 10) / 10,
+                    Math.round(day.windspeed * 10) / 10,
+                    Math.round(day.cloudcover * 10) / 10,
+                    Math.round(dailyKWh * 10) / 10,
+                    Math.round(hvacKWh * 10) / 10,
+                    weatherCondition,
+                    comfortScore
+                ];
+
+                csv += row.join(',') + '\n';
+            });
+
+            return csv;
+        }
+
+        function calculateDailyKWh(avgTemp, humidity, cloudcover) {
+            // Base consumption
+            let baseKWh = 120;
+            
+            // Temperature factor (higher consumption for extreme temps)
+            if (avgTemp > 85) {
+                baseKWh += (avgTemp - 85) * 3.5;
+            } else if (avgTemp < 40) {
+                baseKWh += (40 - avgTemp) * 2.8;
+            }
+            
+            // Humidity factor
+            if (humidity > 70) {
+                baseKWh += (humidity - 70) * 0.8;
+            }
+            
+            // Cloud cover factor (less solar, more artificial lighting)
+            baseKWh += cloudcover * 0.5;
+            
+            return Math.max(baseKWh, 100); // Minimum 100 kWh
+        }
+
+        function calculateHVACKWh(avgTemp, humidity) {
+            let hvacKWh = 50;
+            
+            // Temperature-based HVAC usage
+            if (avgTemp > 78) {
+                // Cooling
+                hvacKWh += (avgTemp - 78) * 4.2;
+            } else if (avgTemp < 65) {
+                // Heating
+                hvacKWh += (65 - avgTemp) * 3.5;
+            }
+            
+            // Humidity factor for HVAC
+            if (humidity > 60) {
+                hvacKWh += (humidity - 60) * 1.2;
+            }
+            
+            return Math.max(hvacKWh, 40); // Minimum 40 kWh for HVAC
+        }
+
+        function mapWeatherCondition(condition) {
+            const conditionMap = {
+                'Clear': 'Sunny',
+                'Sunny': 'Sunny',
+                'Partially cloudy': 'Partly_Cloudy',
+                'Partly cloudy': 'Partly_Cloudy',
+                'Cloudy': 'Cloudy',
+                'Overcast': 'Cloudy',
+                'Rain': 'Rain',
+                'Light rain': 'Light_Rain',
+                'Heavy rain': 'Rain',
+                'Snow': 'Snow',
+                'Light snow': 'Light_Snow'
+            };
+            
+            return conditionMap[condition] || 'Partly_Cloudy';
+        }
+
+        function calculateComfortScore(tempMax, tempMin, humidity, windSpeed) {
+            let score = 10;
+            
+            // Temperature comfort (ideal range 65-75°F)
+            const avgTemp = (tempMax + tempMin) / 2;
+            if (avgTemp < 50 || avgTemp > 90) score -= 4;
+            else if (avgTemp < 60 || avgTemp > 85) score -= 3;
+            else if (avgTemp < 65 || avgTemp > 80) score -= 2;
+            else if (avgTemp < 70 || avgTemp > 75) score -= 1;
+            
+            // Humidity comfort (ideal range 40-60%)
+            if (humidity > 80) score -= 2;
+            else if (humidity > 70) score -= 1;
+            else if (humidity < 30) score -= 1;
+            
+            // Wind comfort (very high winds reduce comfort)
+            if (windSpeed > 20) score -= 2;
+            else if (windSpeed > 15) score -= 1;
+            
+            return Math.max(Math.min(score, 10), 1); // Clamp between 1-10
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function showPreview(csvData) {
+            const previewDiv = document.getElementById('preview');
+            const previewContent = document.getElementById('previewContent');
+            
+            // Show first 15 lines of CSV for preview (header + 14 days)
+            const lines = csvData.split('\n').slice(0, 16);
+            previewContent.textContent = lines.join('\n') + (csvData.split('\n').length > 16 ? '\n...' : '');
+            
+            previewDiv.style.display = 'block';
+        }
+
+        function downloadCSV() {
+            if (!csvData) {
+                showStatus('No CSV data to download', 'error');
+                return;
+            }
+
+            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', fileName);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showStatus('CSV file downloaded successfully!', 'success');
+            }
+        }
+
+        // Allow Enter key to trigger generation
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateWeatherCSV();
+            }
+        });
+    </script>
+</body>
+</html>
